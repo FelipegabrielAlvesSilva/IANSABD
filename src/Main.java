@@ -1,59 +1,70 @@
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Scanner;
 
 public class Main{
 
-    public static void Usarios(Connection conn) throws SQLException {
-        String sql= "CREATE TABLE IF NOT EXISTS usuarios(" +
+    public static void usuarios(Connection conn) throws SQLException {
+
+        String sql = "CREATE TABLE IF NOT EXISTS usuarios(" +
                 "id SERIAL PRIMARY KEY, " +
-                "nomeCompleto TEXT NOT NULL, " +
-                "cpf TEXT NOT NULL, " +
-                "email TEXT NOT NULL, "+
-                "senha TEXT NOT NULL, "+
-                "telefone TEXT NOT NULL, "+
-                "tipoUsuario ENUM('Diretora','Funcionario', 'Voluntario') NOT NULL "+
-                "statusUsuario ENUM('Ativo', 'Inativo') NOT NULL )";
-        //Criar  objeto de instrução sql
+                "nome_completo TEXT NOT NULL, " +
+                "cpf TEXT NOT NULL UNIQUE, " +
+                "email TEXT NOT NULL UNIQUE, " +
+                "senha TEXT NOT NULL, " +
+                "telefone TEXT NOT NULL, " +
+                "tipo_usuario VARCHAR(20) NOT NULL " +
+                "CHECK (tipo_usuario IN ('Diretora','Funcionario','Voluntario')), " +
+                "status_usuario VARCHAR(20) NOT NULL " +
+                "CHECK (status_usuario IN ('Ativo','Inativo'))" +
+                ");";
+
         Statement stmt = conn.createStatement();
-        stmt.execute(sql); // executa comando SQL
-        stmt.close();// fecha instrucao SQL
+        stmt.execute(sql);
+        stmt.close();
     }
 
-    public static void categorias(Connection conn) throws SQLException {
-        String sql= "CREATE TABLE IF NOT EXISTS usuarios(" +
-                "id SERIAL PRIMARY KEY, " +
-                "categoria ENUM('Alimenticio','Movel') NOT NULL "+
-                "descricao TEXT NOT NULL )";
-        //Criar  objeto de instrução sql
-        Statement stmt = conn.createStatement();
-        stmt.execute(sql); // executa comando SQL
-        stmt.close();// fecha instrucao SQL
-    }
 
-    public static void EstoqueItens(Connection conn) throws SQLException {
-        //cria tabela dos itens em estoque
-        String sql= "CREATE TABLE IF NOT EXISTS usuarios(" +
-                "id SERIAL PRIMARY KEY, " +
-                "nomeItem TEXT NOT NULL, " +
-                "itenDescricao TEXT NOT NULL, " +
-                "quantidade INTEGER NOT NULL, "+
-                "origem_item VARCHAR(20) NOT NULL " +
-                "CHECK (origem_item IN ('Doacao', 'Compra')), " +
-                "valor_unitario DECIMAL(10,2) NOT NULL, " +
-                "desconto_aplicado DECIMAL(10,2), " +
-                "data_entrada DATE NOT NULL, " +
-                "data_validade DATE, " +
-                "status_item VARCHAR(20) NOT NULL " +
-                "CHECK (status_item IN ('Disponivel', 'Baixo Estoque', 'Vencido')), " +
-                "FOREIGN KEY (categoria_id) REFERENCES categorias(id)";
-        //Criar  objeto de instrução sql
-        Statement stmt = conn.createStatement();
-        stmt.execute(sql); // executa comando SQL
-        stmt.close();// fecha instrucao SQL
-    }
+public static void categorias(Connection conn) throws SQLException {
 
-    public static void Fornecedores(Connection conn) throws SQLException {
+    String sql = "CREATE TABLE IF NOT EXISTS categorias(" +
+            "id SERIAL PRIMARY KEY, " +
+            "categoria VARCHAR(20) NOT NULL " +
+            "CHECK (categoria IN ('Alimenticio','Movel')), " +
+            "descricao TEXT NOT NULL" +
+            ");";
+
+    Statement stmt = conn.createStatement();
+    stmt.execute(sql);
+    stmt.close();
+}
+
+
+public static void estoqueItens(Connection conn) throws SQLException {
+
+    String sql = "CREATE TABLE IF NOT EXISTS itens_estoque(" +
+            "id SERIAL PRIMARY KEY, " +
+            "categoria_id INTEGER NOT NULL, " +
+            "nome_item TEXT NOT NULL, " +
+            "item_descricao TEXT NOT NULL, " +
+            "quantidade INTEGER NOT NULL, " +
+            "origem_item VARCHAR(20) NOT NULL " +
+            "CHECK (origem_item IN ('Doacao', 'Compra')), " +
+            "valor_unitario DECIMAL(10,2) NOT NULL, " +
+            "desconto_aplicado DECIMAL(10,2), " +
+            "data_entrada DATE NOT NULL, " +
+            "data_validade DATE, " +
+            "status_item VARCHAR(20) NOT NULL " +
+            "CHECK (status_item IN ('Disponivel','Baixo Estoque','Vencido')), " +
+            "FOREIGN KEY (categoria_id) REFERENCES categorias(id)" +
+            ");";
+
+    Statement stmt = conn.createStatement();
+    stmt.execute(sql);
+    stmt.close();
+}
+
+
+    public static void fornecedores(Connection conn) throws SQLException {
         //cria tabela dos fornecedores
 
         String sql = "CREATE TABLE IF NOT EXISTS fornecedores (" +
@@ -62,7 +73,7 @@ public class Main{
                 "tipo_fornecedor VARCHAR(20) NOT NULL " +
                 "CHECK (tipo_fornecedor IN ('Fornecedor', 'Doador')), " +
                 "telefone TEXT NOT NULL, " +
-                "email TEXT" +
+                "email TEXT NOT NULL" +
                 ");";
 
         Statement stmt = conn.createStatement();
@@ -71,7 +82,7 @@ public class Main{
 
         System.out.println("Tabela fornecedores criada!");
     }
-    public static void MovimentacoesEstoque(Connection conn) throws SQLException {
+    public static void movimentacoesEstoque(Connection conn) throws SQLException {
 
         String sql = "CREATE TABLE IF NOT EXISTS movimentacoes_estoque (" +
                 "id SERIAL PRIMARY KEY, " +
@@ -94,39 +105,83 @@ public class Main{
         stmt.close();
     }
 
-    public static void avisosInternos(Connection conn) throws SQLException {
+    //======== CRUD DA TABELA DE USUARIOS ========
 
-        String sql = "CREATE TABLE IF NOT EXISTS avisos_internos (" +
-                "id SERIAL PRIMARY KEY, " +
-                "autor_id INTEGER NOT NULL, " +
-                "titulo TEXT NOT NULL, " +
-                "conteudo TEXT NOT NULL, " +
-                "data_postagem TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+    public static void cadastrarUsuario(Connection conn, Scanner sc)
+            throws SQLException {
 
-                "FOREIGN KEY (autor_id) REFERENCES usuarios(id)" +
-                ");";
+        System.out.println("Nome completo:");
+        String nome = sc.nextLine();
+
+        System.out.println("CPF:");
+        String cpf = sc.nextLine();
+
+        System.out.println("Email:");
+        String email = sc.nextLine();
+
+        System.out.println("Senha:");
+        String senha = sc.nextLine();
+
+        System.out.println("Telefone:");
+        String telefone = sc.nextLine();
+
+        System.out.println("Tipo usuario (Diretora, Funcionario, Voluntario):");
+        String tipo = sc.nextLine();
+
+        System.out.println("Status usuario (Ativo, Inativo):");
+        String status = sc.nextLine();
+
+        String sql = "INSERT INTO usuarios " +
+                "(nome_completo, cpf, email, senha, telefone, tipo_usuario, status_usuario) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setString(1, nome);
+        ps.setString(2, cpf);
+        ps.setString(3, email);
+        ps.setString(4, senha);
+        ps.setString(5, telefone);
+        ps.setString(6, tipo);
+        ps.setString(7, status);
+
+        ps.executeUpdate();
+
+        System.out.println("Usuario cadastrado!");
+
+        ps.close();
+    }
+    public static void consultarUsuarios(Connection conn)
+            throws SQLException {
+
+        String sql = "SELECT * FROM usuarios ORDER BY nome_completo";
 
         Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+
+        ResultSet rs = stmt.executeQuery(sql);
+
+        while (rs.next()) {
+
+            int id = rs.getInt("id");
+            String nome = rs.getString("nome_completo");
+            String cpf = rs.getString("cpf");
+            String email = rs.getString("email");
+            String telefone = rs.getString("telefone");
+            String tipo = rs.getString("tipo_usuario");
+            String status = rs.getString("status_usuario");
+
+            System.out.printf(
+                    "[%d] %s | CPF: %s | Email: %s | Tel: %s | Tipo: %s | Status: %s%n",
+                    id, nome, cpf, email, telefone, tipo, status
+            );
+        }
+
+        rs.close();
         stmt.close();
     }
-
-    public static void HistoricoAcessos(Connection conn) throws SQLException {
-
-        String sql = "CREATE TABLE IF NOT EXISTS historico_acessos (" +
-                "id SERIAL PRIMARY KEY, " +
-                "usuario_id INTEGER NOT NULL, " +
-                "acao_realizada TEXT NOT NULL, " +
-                "data_acao TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "endereco_ip TEXT, " +
-                "FOREIGN KEY (usuario_id) REFERENCES usuarios(id)" +
-                ");";
-
-        Statement stmt = conn.createStatement();
-        stmt.execute(sql);
-        stmt.close();
-    }
-
 
 }
+
+
+
 
