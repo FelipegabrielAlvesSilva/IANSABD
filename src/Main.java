@@ -15,8 +15,8 @@ public class Main{
                 "tipo_usuario VARCHAR(20) NOT NULL " +
                 "CHECK (tipo_usuario IN ('Diretora','Funcionario','Voluntario')), " +
                 "status_usuario VARCHAR(20) NOT NULL " +
-                "CHECK (status_usuario IN ('Ativo','Inativo'))" +
-                ");";
+                "CHECK (status_usuario IN ('Ativo','Inativo')))" ;
+
 
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
@@ -30,8 +30,8 @@ public static void categorias(Connection conn) throws SQLException {
             "id SERIAL PRIMARY KEY, " +
             "categoria VARCHAR(20) NOT NULL " +
             "CHECK (categoria IN ('Alimenticio','Movel')), " +
-            "descricao TEXT NOT NULL" +
-            ");";
+            "descricao TEXT NOT NULL)" ;
+
 
     Statement stmt = conn.createStatement();
     stmt.execute(sql);
@@ -55,8 +55,8 @@ public static void estoqueItens(Connection conn) throws SQLException {
             "data_validade DATE, " +
             "status_item VARCHAR(20) NOT NULL " +
             "CHECK (status_item IN ('Disponivel','Baixo Estoque','Vencido')), " +
-            "FOREIGN KEY (categoria_id) REFERENCES categorias(id)" +
-            ");";
+            "FOREIGN KEY (categoria_id) REFERENCES categorias(id))";
+
 
     Statement stmt = conn.createStatement();
     stmt.execute(sql);
@@ -73,8 +73,8 @@ public static void estoqueItens(Connection conn) throws SQLException {
                 "tipo_fornecedor VARCHAR(20) NOT NULL " +
                 "CHECK (tipo_fornecedor IN ('Fornecedor', 'Doador')), " +
                 "telefone TEXT NOT NULL, " +
-                "email TEXT NOT NULL" +
-                ");";
+                "email TEXT NOT NULL)" ;
+
 
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
@@ -97,8 +97,8 @@ public static void estoqueItens(Connection conn) throws SQLException {
 
                 "FOREIGN KEY (item_id) REFERENCES itens_estoque(id), " +
                 "FOREIGN KEY (usuario_id) REFERENCES usuarios(id), " +
-                "FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)" +
-                ");";
+                "FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id))" ;
+
 
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
